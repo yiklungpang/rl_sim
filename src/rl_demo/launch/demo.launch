@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="rl_demo" type="demo.py" name="demo" output="screen"/>
+</launch>

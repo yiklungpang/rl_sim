@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: rl_gazebo
+    relative_path: urdf/rlbot.urdf.xacro
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/rlbot.srdf
+  CONFIG:
+    author_name: yiklungpang
+    author_email: yiklungpang@gmail.com
+    generated_timestamp: 1572708347
