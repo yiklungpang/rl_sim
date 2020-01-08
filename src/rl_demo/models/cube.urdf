@@ -2,23 +2,29 @@
   <link name="my_object">
     <inertial>
       <origin xyz="0 0 0" />
-      <mass value="1.0" />
-      <inertia  ixx="0.00016" ixy="0.0"  ixz="0.0"  iyy="0.00016"  iyz="0.0"  izz="0.00016" />
+      <mass value="0.001" />
+      <inertia  ixx="0.0000004167" ixy="0.0"  ixz="0.0"  iyy="0.0000004167"  iyz="0.0"  izz="0.0000004167" />
     </inertial>
     <visual>
       <origin xyz="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <box size="0.05 0.05 0.05"/>
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0"/>
       <geometry>
-        <box size="0.1 0.1 0.1"/>
+        <box size="0.05 0.05 0.05"/>
       </geometry>
     </collision>
   </link>
   <gazebo reference="my_object">
     <material>Gazebo/Blue</material>
+    <implicitSpringDamper>1</implicitSpringDamper>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>100000000.0</kp>
+    <kd>1.0</kd>
+    <fdir1>1 0 0</fdir1>
   </gazebo>
 </robot>

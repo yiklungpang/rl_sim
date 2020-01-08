@@ -64,14 +64,16 @@ def simpleMovement():
     rospy.sleep(3)
 
     # Start recording
-    simple_movement = rospy.ServiceProxy('/simple_movement', SimpleMovement)
-    try:
-        simple_movement()
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" % e
+    # simple_movement = rospy.ServiceProxy('/simple_movement', SimpleMovement)
+    # try:
+    #     simple_movement()
+    # except rospy.ServiceException, e:
+    #     print "Service call failed: %s" % e
 
+
+    rospy.sleep(300)
     # Kill the simulation and other nodes
-    parent.shutdown()
+    # parent.shutdown()
 
 
 ## Main function

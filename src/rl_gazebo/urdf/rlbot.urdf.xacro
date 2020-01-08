@@ -12,7 +12,7 @@
     <!-- camera settings -->
     <xacro:include filename="$(find rl_gazebo)/urdf/rlbot.gazebo.xacro" />
 
-    <!-- arm -->
+    <!-- Arm -->
     <xacro:ur5_robot prefix="" joint_limited="false" transmission_hw_interface="$(arg transmission_hw_interface)"/>
 
     <link name="world" />
@@ -22,6 +22,12 @@
         <child link = "base_link" />
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
     </joint>
+
+    <!-- Gripper -->
+    <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper.urdf.xacro" />
+    <xacro:robotiq_85_gripper prefix="" parent="tool0" >
+        <origin xyz="0.0 0.0 0.0" rpy="0 ${-pi/2} 0"/>
+    </xacro:robotiq_85_gripper>
     
     <!-- Camera -->
     <xacro:property name="camera_link" value="0.02" /> <!-- Size of square 'camera' box -->
@@ -50,8 +56,8 @@
 
     <joint name="camera_joint" type="fixed">
         <axis xyz="0 1 0" />
-        <origin xyz="-0.02 0.045 0" rpy="0 0 0"/>
-        <parent link="ee_link"/>
+        <origin xyz="0.02 0 0.045" rpy="0 0 0"/>
+        <parent link="gripper_base_link"/>
         <child link="camera_link"/>
     </joint>
 </robot>

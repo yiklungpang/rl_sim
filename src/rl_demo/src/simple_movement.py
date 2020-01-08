@@ -47,17 +47,22 @@ import tf
 from rl_demo.srv import SimpleMovement
 from gazebo_msgs.srv import DeleteModel, SpawnModel, GetModelState
 from geometry_msgs.msg import *
-from std_msgs.msg import String
+from control_msgs.msg import *
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from std_msgs.msg import String, Header
+from rospy.rostime import Duration
 from math import pi
 
 
-def main(req):
+def simple_movement():
     """Main function to perform the experiment and record the effects
     Parameters
     ----------
     req : list of str
         The list of tools and objects names
     """
+
+    rospy.init_node('simple_movement', anonymous=True)
     rospy.loginfo('-------------------------------------------------')
     rospy.loginfo('Starting simple movement')
     rospy.loginfo('-------------------------------------------------')
@@ -65,29 +70,86 @@ def main(req):
     # Initialise moveit_commander
     moveit_commander.roscpp_initialize(sys.argv)
 
-    # Interface to the group of joints belonging to the left UR5 arm
+    # Interface to the group of joints belonging to the UR5 arm
     group_name = 'manipulator'
-    group = moveit_commander.MoveGroupCommander(group_name)
+    manipulator_group = moveit_commander.MoveGroupCommander(group_name)
+    # Interface to the group of joints belonging to the Robotiq gripper
+    group_name = 'gripper'
+    gripper_group = moveit_commander.MoveGroupCommander(group_name)
     
     # Spawn the object
     rospack = rospkg.RosPack()
     object_urdf_path = str(rospack.get_path('rl_demo')+'/models/cube.urdf')
     
-    spawn_object('box', object_urdf_path, 0.5, 1.0, 0.05, 0, 0, 0)
+    spawn_object('box', object_urdf_path, 0.5, 0.5, 0.125, 0, 0, 0)
 
     # Move arm to middle of the table
-    move_arm(group, 0.5, 0.05, 0.05)
+    move_arm(manipulator_group, 0.5, 0.05, 0.125)
 
-def simple_movement_server():
-    """Set up the server for the record visual service
-    """
+    # Rotate gripper
+    joint_goal = manipulator_group.get_current_joint_values()
+    joint_goal[5] = -pi/2
+    manipulator_group.go(joint_goal, wait=True)
+    manipulator_group.stop()
 
-    # Initiate this node
-    rospy.init_node('simple_movement_server', anonymous=True)
-    s = rospy.Service('simple_movement', SimpleMovement, main)
+    move_arm(manipulator_group, 0.5, 0.355, 0.125)
+    
+    close_gripper(gripper_group)
 
-    # keep node running
-    rospy.spin()
+    move_arm(manipulator_group, 0.5, 0.355, 0.3)
+
+
+# def simple_movement_server():
+#     """Set up the server for the record visual service
+#     """
+
+#     # Initiate this node
+#     rospy.init_node('simple_movement_server', anonymous=True)
+#     s = rospy.Service('simple_movement', SimpleMovement, main)
+
+#     # keep node running
+#     rospy.spin()
+
+def close_gripper(group):
+    rospy.loginfo('-------------------------------------------------')
+    rospy.loginfo('Closing gripper')
+    rospy.loginfo('-------------------------------------------------')
+    pub = rospy.Publisher('/gripper/command', JointTrajectory, queue_size=10)
+
+    # traj = JointTrajectory()
+    # h = Header()
+    # h.stamp = rospy.Time.now()
+    # h.frame_id = 'gripper_base_link'
+    # traj.header = h
+
+    # traj.joint_names.append('gripper_finger1_joint')
+
+    # traj_point = JointTrajectoryPoint()
+    # traj_point.positions.append(0.5)
+    # traj.points.append(traj_point)
+
+    # traj.points[0].time_from_start = rospy.Duration.from_sec(1.0)
+
+    # pub.publish(traj)
+
+    jt = JointTrajectory()
+    jt.joint_names.append("gripper_finger1_joint")
+    point = JointTrajectoryPoint()
+    point.positions.append(0.37)
+    point.time_from_start = rospy.Duration.from_sec(0.8)
+    jt.points.append(point)
+
+    # pub.publish(jt)
+    cnt = 0
+    rate = rospy.Rate(10) # 10hz
+    while not rospy.is_shutdown() and cnt < 30:
+        cnt += 1
+        pub.publish(jt)
+        rate.sleep()
+    rospy.loginfo('-------------------------------------------------')
+    rospy.loginfo('DONE')
+    rospy.loginfo('-------------------------------------------------')
+
 
 
 
@@ -104,6 +166,10 @@ def move_arm(group, pos_x, pos_y, pos_z):
     pos_z : target z coordinate
         z coordinate of target position
     """
+
+    rospy.loginfo('-------------------------------------------------')
+    rospy.loginfo('Moving arm')
+    rospy.loginfo('-------------------------------------------------')
 
     # Define waypoint
     startpose = group.get_current_pose().pose
@@ -168,6 +234,6 @@ def spawn_object(model_name, model_path, spawn_x, spawn_y, spawn_z, row, pitch, 
 ## Main function
 if __name__ == '__main__':
     try:
-        simple_movement_server()
+        simple_movement()
     except rospy.ROSInterruptException:
         pass
