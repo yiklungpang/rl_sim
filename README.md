@@ -26,8 +26,10 @@ You can start the process by running:
 
 `roslaunch rl_demo demo.launch`
 
-The UR5 arm will move close to the ground and a blue cube will be captured in the RGB camera
+Wait 10 seconds after the environment is launched for the initial config to be loaded, then start the movement by runnning:
 
-RGB images will be saved in:
+`rosrun rl_demo simple_movement.py`
+
+The UR5 arm will move close to the blue cube and close the gripper. The RGB images from the camera will be saved in:
 
 `rl_sim/src/rl_demo/image`
